@@ -14,7 +14,6 @@ body {
     text-align: left;
 }
 
-/* Custom styles for the chatbot and conversation log interface */
 .chat-window {
     height: 400px;
     overflow-y: scroll;
@@ -33,4 +32,5 @@ body {
 #conversation-log .list-group-item {
     border: none;
     border-bottom: 1px solid #ddd;
+    word-break: break-all;
 }

@@ -36,7 +36,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayLog(log) {
         const logEntry = document.createElement('li');
         logEntry.className = 'list-group-item';
-        logEntry.textContent = `${log.timestamp} - ${log.sender}: ${log.message} (Signature: ${log.signature})`;
+        
+        // Shorten the signature for display
+        const shortSignature = log.signature.substring(0, 10) + '...';
+        
+        // Create a JSON object for the log
+        const logObject = {
+            timestamp: log.timestamp,
+            sender: log.sender,
+            message: log.message,
+            signature: shortSignature,
+            urn: log.uri,
+            conversationId: log.conversationId,
+        };
+        
+        logEntry.textContent = JSON.stringify(logObject, null, 2);
         conversationLog.appendChild(logEntry);
     }
 

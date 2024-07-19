@@ -60,19 +60,23 @@ def log_conversation(sender, message, id):
         'conversationId': shortuuid.uuid(),
         'timestamp': timestamp,
         'sender': sender,
-        'message': message,    
+        'message': message,
+        'lastMessages': getLastMessages()
     }
     signed = private_key.sign(
         str(log_entry).encode(),
         padding.PKCS1v15(),
         hashes.SHA256()
     )
-    log_entry['signature'] = str(signed)
+    log_entry['signature'] = signed.hex()
 
     log_hash = hashlib.sha256(str(log_entry).encode()).hexdigest()
     print(f'Logged to "blockchain": {log_entry} with hash: {log_hash}')
 
     return log_entry
+
+def getLastMessages():
+    return []
 
 if __name__ == '__main__':
     app.run(debug=True)
