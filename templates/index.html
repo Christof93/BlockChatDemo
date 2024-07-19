@@ -4,19 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot Interface</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h2>Chatbot</h2>
-        </div>
-        <div class="chat-window" id="chat-window"></div>
-        <div class="chat-input-container">
-            <input type="text" id="chat-input" placeholder="Type a message..." />
-            <button onclick="sendMessage()">Send</button>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Chatbot</h2>
+            </div>
+            <div class="card-body">
+                <div class="chat-window" id="chat-window"></div>
+                <div class="chat-input-container mt-3">
+                    <input type="text" id="chat-input" class="form-control mb-2" placeholder="Type a message..." />
+                    <button class="btn btn-primary btn-block" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <button id="certify-btn" class="btn btn-success" onclick="certifyConversation()">
+                            <i class="fas fa-certificate"></i> Certify this conversation with BlockTalk
+                            <i class="fas fa-info-circle" type="button" data-toggle="collapse" data-target="#info-collapse" onclick="(evt) => {console.log('stop propapgation');evt.stopImmediatePropagation()}"></i>
+                        </button>
+                        
+                    </div>
+                    <div id="info-collapse" class="collapse mt-2">
+                        <div class="alert alert-info" role="alert">
+                            Certifying this conversation with BlockTalk will create a record on the blockchain to verify the authenticity of the conversation. This record helps ensure that the conversation has not been tampered with and provides a proof of integrity.
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

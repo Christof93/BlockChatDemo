@@ -12,11 +12,24 @@ def index():
 def chat():
     user_message = request.json.get('message')
     bot_response = get_bot_response(user_message)
-    print(user_message)
-
     log_conversation('User', user_message)
     log_conversation('Bot', bot_response)
     return jsonify({'response': bot_response})
+
+@app.route('/certify', methods=['POST'])
+def certify():
+    conversation = request.json.get('conversation')
+    if not conversation:
+        return jsonify({'success': False})
+    
+    # Create a hash of the entire conversation
+    conversation_str = str(conversation)
+    conversation_hash = hashlib.sha256(conversation_str.encode()).hexdigest()
+    
+    # Log the conversation hash (this simulates adding it to a blockchain)
+    print(f'Certified conversation with hash: {conversation_hash}')
+    
+    return jsonify({'success': True})
 
 def get_bot_response(message):
     if 'hello' in message.lower():
