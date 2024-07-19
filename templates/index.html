@@ -10,28 +10,45 @@
 </head>
 <body>
     <div class="container mt-5">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h2 class="mb-0">Chatbot</h2>
-            </div>
-            <div class="card-body">
-                <div class="chat-window" id="chat-window"></div>
-                <div class="chat-input-container mt-3">
-                    <input type="text" id="chat-input" class="form-control mb-2" placeholder="Type a message..." />
-                    <button class="btn btn-primary btn-block" onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i> Send
-                    </button>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        <button id="certify-btn" class="btn btn-success" onclick="certifyConversation()">
-                            <i class="fas fa-certificate"></i> Certify this conversation with BlockTalk
-                            <i class="fas fa-info-circle" type="button" data-toggle="collapse" data-target="#info-collapse" onclick="(evt) => {console.log('stop propapgation');evt.stopImmediatePropagation()}"></i>
-                        </button>
-                        
+        <div class="row">
+            <!-- Chat Interface -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">Chatbot</h2>
                     </div>
-                    <div id="info-collapse" class="collapse mt-2">
-                        <div class="alert alert-info" role="alert">
-                            Certifying this conversation with BlockTalk will create a record on the blockchain to verify the authenticity of the conversation. This record helps ensure that the conversation has not been tampered with and provides a proof of integrity.
+                    <div class="card-body">
+                        <div class="chat-window" id="chat-window"></div>
+                        <div class="chat-input-container mt-3">
+                            <input type="text" id="chat-input" class="form-control mb-2" placeholder="Type a message..." />
+                            <button class="btn btn-primary btn-block" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                            <div class="d-flex mt-2">
+                                <button id="certify-btn" class="btn btn-success btn-block position-relative" onclick="certifyConversation(event)">
+                                    <i class="fas fa-certificate"></i> Certify this conversation
+                                    <button class="btn btn-info btn-sm position-absolute" type="button" data-toggle="collapse" data-target="#info-collapse" style="top: 50%; right: 10px; transform: translateY(-50%); border: none; padding: 0;">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </button>
+                            </div>
+                            <div id="info-collapse" class="collapse mt-2">
+                                <div class="alert alert-info" role="alert">
+                                    Certifying this conversation with BlockTalk will create a record on the blockchain to verify the authenticity of the conversation. This record helps ensure that the conversation has not been tampered with and provides a proof of integrity.
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Conversation Log -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h2 class="mb-0">Conversation Log</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group" id="conversation-log"></ul>
                     </div>
                 </div>
             </div>
