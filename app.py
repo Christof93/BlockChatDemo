@@ -2,7 +2,10 @@ from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 import hashlib
 import shortuuid
+import secrets
+import time
 
+from copy import copy
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
@@ -16,6 +19,13 @@ private_key = rsa.generate_private_key(
     backend=default_backend()
 )
 
+BOT_RESPONSES = [
+    'Hi there! How can I help you?',
+    'Yes! We take returns at no extra cost. I\'ll email a shipping label and return instructions!',
+    'No, worries! Do you have any other questions?'
+]
+previousMessages = []
+
 # Derive public key from private key
 public_key = private_key.public_key()
 
@@ -26,10 +36,17 @@ def index():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.json.get('message')
-    id = request.json.get('id')
-    bot_response = get_bot_response(user_message)
+    id = int(request.json.get('nr'))*2
+    if id==0:
+        while (len(previousMessages)>0):
+            previousMessages.pop()
+    time.sleep(1)
+    bot_response = get_bot_response(request.json.get('nr'))
     user_log = log_conversation('User', user_message, id)
-    bot_log = log_conversation('Bot', bot_response, id)
+    previousMessages.append(user_log['TimestampTxId'])
+    bot_log = log_conversation('Bot', bot_response, id+1)
+    previousMessages.append(bot_log['TimestampTxId'])
+
     return jsonify({'response': bot_response, 'logs': [user_log, bot_log]})
 
 @app.route('/certify', methods=['POST'])
@@ -47,36 +64,41 @@ def certify():
     
     return jsonify({'success': True})
 
-def get_bot_response(message):
-    if 'hello' in message.lower():
-        return 'Hi there! How can I help you?'
-    else:
+def get_bot_response(message_nr):
+    try:
+        return BOT_RESPONSES[message_nr]
+    except IndexError:
         return 'I am just a simple bot. I cannot understand complex queries yet.'
 
 def log_conversation(sender, message, id):
     timestamp = datetime.now().isoformat()
     log_entry = {
-        'uri':f"urn:trusteez:blocktalk:v1:{id}",
+        'uri': f"urn:trusteez:blocktalk:v1:{id}",
         'conversationId': shortuuid.uuid(),
         'timestamp': timestamp,
         'sender': sender,
         'message': message,
-        'lastMessages': getLastMessages()
+        'lastMessages': previousMessages.copy(),
     }
+    log_entry = addSignature(log_entry)
+
+    log_hash = hashlib.sha256(str(log_entry).encode()).hexdigest()
+    log_entry['TimestampTxId'] = blockchainTimestamp(log_hash)
+    return log_entry
+
+def addSignature(message):
     signed = private_key.sign(
-        str(log_entry).encode(),
+        str(message).encode(),
         padding.PKCS1v15(),
         hashes.SHA256()
     )
-    log_entry['signature'] = signed.hex()
+    message['signature'] = signed.hex()
+    return message
 
-    log_hash = hashlib.sha256(str(log_entry).encode()).hexdigest()
-    print(f'Logged to "blockchain": {log_entry} with hash: {log_hash}')
-
-    return log_entry
-
-def getLastMessages():
-    return []
+def blockchainTimestamp(message):
+    tx_id = "0x" + secrets.token_hex(32)
+    print(f'Logged to "blockchain": {message} with hash: {tx_id}')
+    return tx_id
 
 if __name__ == '__main__':
     app.run(debug=True)

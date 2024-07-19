@@ -1,2 +1,4 @@
 Flask
 opentimestamps-client
+cryptography
+shortuuid

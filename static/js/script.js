@@ -1,7 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     const chatWindow = document.getElementById('chat-window');
     const conversationLog = document.getElementById('conversation-log');
-    
+    const QUESTIONS = [
+        "Hi!",
+        "I received a faulty product. Can I return it for free?",
+        "Thank you!",
+    ]
+    questionIndex=0
+    document.getElementById('chat-input').value = QUESTIONS[questionIndex]
+
     function sendMessage() {
         const input = document.getElementById('chat-input');
         const message = input.value;
@@ -13,23 +20,36 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ message: message, nr: questionIndex })
         })
         .then(response => response.json())
         .then(data => {
             // Display user message and bot response
             data.logs.forEach(log => displayLog(log));
+            chatWindow.children.item(chatWindow.children.length-1).remove()
             displayMessage('Bot', data.response);
+            if (questionIndex < QUESTIONS.length - 1) {
+                input.value = QUESTIONS[++questionIndex]
+            } else {
+                questionIndex=0
+                input.value = QUESTIONS[questionIndex]
+            }
         });
         
         // Display user message
         displayMessage('User', message);
+        displayMessage('Bot', '...');
+
         input.value = '';
     }
     
     function displayMessage(sender, message) {
-        const messageElement = document.createElement('div');
-        messageElement.textContent = `${sender}: ${message}`;
+        const messageElement = document.createElement('div')
+        messageElement.classList.add(
+            "message",
+            sender.toLowerCase()
+        );
+        messageElement.innerHTML = `<strong>${sender}</strong>: ${message}`;
         chatWindow.appendChild(messageElement);
     }
 
@@ -48,6 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
             signature: shortSignature,
             urn: log.uri,
             conversationId: log.conversationId,
+            TimestampTxId: log.TimestampTxId,
+            previousMessages: log.lastMessages,
         };
         
         logEntry.textContent = JSON.stringify(logObject, null, 2);
@@ -76,9 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Conversation certified successfully!');
+                alert('Conversation verified successfully!');
             } else {
-                alert('Failed to certify conversation.');
+                alert('Failed to verify conversation.');
             }
         });
     };
