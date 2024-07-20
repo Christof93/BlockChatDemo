@@ -39,14 +39,12 @@ def verify_page():
 
 @app.route('/verify', methods=['POST'])
 def verify():
-    file = request.files['file']
-    if not file:
-        return jsonify({'success': False, 'message': 'No file uploaded.'})
+    data = request.get_json()
+    transcript = data.get('transcript')
+    if not transcript:
+        return jsonify({'success': False, 'message': 'No transcript provided.'})
 
-    transcript = file.read().decode('utf-8')
-    transcript_json = eval(transcript)  # For simplicity; in production, use json.loads
-
-    for entry in transcript_json:
+    for entry in transcript:
         log_entry = {
             'uri': entry['urn'],
             'conversationId': entry['conversationId'],
@@ -117,7 +115,6 @@ def log_conversation(sender, message, id):
         'lastMessages': list(reversed(previousMessages.copy())),
     }
     log_entry = addSignature(log_entry)
-
     log_hash = hashlib.sha256(str(log_entry).encode()).hexdigest()
     log_entry['timestampTxId'] = blockchainTimestamp(log_hash)
     return log_entry
