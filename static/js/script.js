@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             message: log.message,
             previousMessages: log.lastMessages,
             signature: shortSignature,
-            TimestampTxId: log.TimestampTxId,
+            timestampTxId: log.timestampTxId,
         };
         stringEntry = JSON.stringify(logObject, null, 2)
         console.log(stringEntry)

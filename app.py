@@ -47,26 +47,25 @@ def verify():
     transcript_json = eval(transcript)  # For simplicity; in production, use json.loads
 
     for entry in transcript_json:
-        log_entry_str = {
+        log_entry = {
             'uri': entry['urn'],
             'conversationId': entry['conversationId'],
-            'lastMessages': entry['previousMessages'],
             'timestamp': entry['timestamp'],
             'sender': entry['sender'],
             'message': entry['message'],
+            'lastMessages': entry['previousMessages'],
         }
         signature = bytes.fromhex(entry['signature'])
-
-        # try:
-        #     public_key.verify(
-        #         signature,
-        #         log_entry_str,
-        #         padding.PKCS1v15(),
-        #         hashes.SHA256()
-        #     )
-        # except:
-        if log_entry_str['message'].startswith("0"):
-            return jsonify({'success': False, 'message': f"Invalid signature for entry: {entry}"})
+        try:
+            public_key.verify(
+                signature,
+                str(log_entry).encode(),
+                padding.PKCS1v15(),
+                hashes.SHA256()
+            )
+        except:
+        # if log_entry_str['message'].startswith("0"):
+            return jsonify({'success': False, 'message': f"Invalid signature for entry: {log_entry}"})
 
     return jsonify({'success': True, 'message': 'All signatures are valid.'})
 
