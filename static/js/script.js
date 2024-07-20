@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             // Display user message and bot response
             data.logs.forEach(log => displayLog(log));
-            chatWindow.children.item(chatWindow.children.length-1).remove()
+            chatWindow.children.item(chatWindow.children.length - 1).remove()
             displayMessage('Bot', data.response);
             if (questionIndex < QUESTIONS.length - 1) {
                 input.value = QUESTIONS[++questionIndex]
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(stringEntry)
         logEntry.innerHTML = "<pre>" + stringEntry + "</pre>"
 
-        conversationLog.appendChild(logEntry);
+        conversationLog.prepend(logEntry);
     }
 
     window.sendMessage = sendMessage;
