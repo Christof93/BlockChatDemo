@@ -58,21 +58,23 @@ document.addEventListener('DOMContentLoaded', () => {
         logEntry.className = 'list-group-item';
         
         // Shorten the signature for display
-        const shortSignature = log.signature.substring(0, 10) + '...';
+        const shortSignature = log.signature
         
         // Create a JSON object for the log
         const logObject = {
+            urn: log.uri,
+            conversationId: log.conversationId,
             timestamp: log.timestamp,
             sender: log.sender,
             message: log.message,
-            signature: shortSignature,
-            urn: log.uri,
-            conversationId: log.conversationId,
-            TimestampTxId: log.TimestampTxId,
             previousMessages: log.lastMessages,
+            signature: shortSignature,
+            TimestampTxId: log.TimestampTxId,
         };
-        
-        logEntry.textContent = JSON.stringify(logObject, null, 2);
+        stringEntry = JSON.stringify(logObject, null, 2)
+        console.log(stringEntry)
+        logEntry.innerHTML = "<pre>" + stringEntry + "</pre>"
+
         conversationLog.appendChild(logEntry);
     }
 
@@ -103,5 +105,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Failed to verify conversation.');
             }
         });
+    };
+
+    downloadTranscript = function() {
+        // Gather conversation log
+        const conversation = [];
+        conversationLog.querySelectorAll('li').forEach((logItem) => {
+            const logObject = JSON.parse(logItem.textContent);
+            logObject.signature = logObject.signature.replace('...', '');
+            conversation.push(logObject);
+        });
+
+        const blob = new Blob([JSON.stringify(conversation, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'conversation_transcript.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     };
 });

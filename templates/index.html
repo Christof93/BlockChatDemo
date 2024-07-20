@@ -24,11 +24,12 @@
                             <button class="btn btn-primary btn-block" onclick="sendMessage()">
                                 <i class="fas fa-paper-plane"></i> Send
                             </button>
-                            <div class="d-flex mt-2">
+                            <button class="btn btn-secondary btn-block mt-3" onclick="downloadTranscript()">
+                                <i class="fas fa-download"></i> Download Transcript
+                            </button>
                                 <button id="certify-btn" class="btn btn-success btn-block position-relative" onclick="certifyConversation(event)">
                                     <i class="fas fa-certificate"></i> Verify this conversation
                                 </button>
-                            </div>
                             <div id="info-collapse" class="mt-2">
                                 <div class="alert alert-info" role="alert">
                                     Verifying this conversation with BlockTalk will verify the authenticity of the conversation. A blockchain record ensures that the conversation has not been tampered with and provides a proof of integrity.

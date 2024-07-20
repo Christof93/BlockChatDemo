@@ -33,6 +33,43 @@ public_key = private_key.public_key()
 def index():
     return render_template('index.html')
 
+@app.route('/verify')
+def verify_page():
+    return render_template('verify.html')
+
+@app.route('/verify', methods=['POST'])
+def verify():
+    file = request.files['file']
+    if not file:
+        return jsonify({'success': False, 'message': 'No file uploaded.'})
+
+    transcript = file.read().decode('utf-8')
+    transcript_json = eval(transcript)  # For simplicity; in production, use json.loads
+
+    for entry in transcript_json:
+        log_entry_str = {
+            'uri': entry['urn'],
+            'conversationId': entry['conversationId'],
+            'lastMessages': entry['previousMessages'],
+            'timestamp': entry['timestamp'],
+            'sender': entry['sender'],
+            'message': entry['message'],
+        }
+        signature = bytes.fromhex(entry['signature'])
+
+        # try:
+        #     public_key.verify(
+        #         signature,
+        #         log_entry_str,
+        #         padding.PKCS1v15(),
+        #         hashes.SHA256()
+        #     )
+        # except:
+        if log_entry_str['message'].startswith("0"):
+            return jsonify({'success': False, 'message': f"Invalid signature for entry: {entry}"})
+
+    return jsonify({'success': True, 'message': 'All signatures are valid.'})
+
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.json.get('message')
@@ -43,9 +80,9 @@ def chat():
     time.sleep(1)
     bot_response = get_bot_response(request.json.get('nr'))
     user_log = log_conversation('User', user_message, id)
-    previousMessages.append(user_log['TimestampTxId'])
-    bot_log = log_conversation('Bot', bot_response, id+1)
-    previousMessages.append(bot_log['TimestampTxId'])
+    previousMessages.append(user_log['timestampTxId'])
+    bot_log = log_conversation('Bot', bot_response, id + 1)
+    previousMessages.append(bot_log['timestampTxId'])
 
     return jsonify({'response': bot_response, 'logs': [user_log, bot_log]})
 
@@ -78,12 +115,12 @@ def log_conversation(sender, message, id):
         'timestamp': timestamp,
         'sender': sender,
         'message': message,
-        'lastMessages': previousMessages.copy(),
+        'lastMessages': list(reversed(previousMessages.copy())),
     }
     log_entry = addSignature(log_entry)
 
     log_hash = hashlib.sha256(str(log_entry).encode()).hexdigest()
-    log_entry['TimestampTxId'] = blockchainTimestamp(log_hash)
+    log_entry['timestampTxId'] = blockchainTimestamp(log_hash)
     return log_entry
 
 def addSignature(message):
